@@ -31,6 +31,7 @@ with st.form("loan_form"):
     submit = st.form_submit_button("Predict")
 
 # PREDICTION
+
 if submit:
 
     input_dict = {
@@ -47,17 +48,21 @@ if submit:
         "bank_asset_value": bank_asset_value
     }
 
-    # ENCODING (IMPORTANT)
+    # 🔥 CLEANING (IMPORTANT FIX)
+    input_dict["education"] = input_dict["education"].strip().title()
+    input_dict["self_employed"] = input_dict["self_employed"].strip().title()
+
+    # 🔥 ENCODING
     input_dict["education"] = le_edu.transform([input_dict["education"]])[0]
     input_dict["self_employed"] = le_emp.transform([input_dict["self_employed"]])[0]
 
-    # DATAFRAME
+    # 🔥 DATAFRAME
     df = pd.DataFrame([input_dict])
 
-    # FORCE SAME COLUMN ORDER AS TRAINING
+    # 🔥 COLUMN ALIGNMENT (VERY IMPORTANT)
     df = df.reindex(columns=columns, fill_value=0)
 
-    # PREDICT
+    # 🔥 PREDICTION
     prediction = model.predict(df)[0]
 
     st.success(f"Prediction: {prediction}")
