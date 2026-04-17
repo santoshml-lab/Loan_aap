@@ -1,19 +1,12 @@
-
 import streamlit as st
 import pandas as pd
 import joblib
 
-# Load artifacts
 model = joblib.load("model.pkl")
 columns = joblib.load("columns.pkl")
-le_edu = joblib.load("le_edu.pkl")
-le_emp = joblib.load("le_emp.pkl")
 
-st.title("Loan Prediction Dashboard")
+st.title("Loan Prediction App")
 
-st.write("Enter details below:")
-
-# FORM UI
 with st.form("loan_form"):
 
     no_of_dependents = st.number_input("No of Dependents", 0, 10)
@@ -30,14 +23,16 @@ with st.form("loan_form"):
 
     submit = st.form_submit_button("Predict")
 
-# PREDICTION
-
 if submit:
+
+    # 🟢 SAFE MAPPING (NO LABELENCODER)
+    education_map = {"Graduate": 1, "Not Graduate": 0}
+    emp_map = {"Yes": 1, "No": 0}
 
     input_dict = {
         "no_of_dependents": no_of_dependents,
-        "education": education,
-        "self_employed": self_employed,
+        "education": education_map.get(education.strip(), 0),
+        "self_employed": emp_map.get(self_employed.strip(), 0),
         "income_annum": income_annum,
         "loan_amount": loan_amount,
         "loan_term": loan_term,
@@ -48,21 +43,11 @@ if submit:
         "bank_asset_value": bank_asset_value
     }
 
-    # 🔥 CLEANING (IMPORTANT FIX)
-    input_dict["education"] = input_dict["education"].strip().title()
-    input_dict["self_employed"] = input_dict["self_employed"].strip().title()
-
-    # 🔥 ENCODING
-    input_dict["education"] = le_edu.transform([input_dict["education"]])[0]
-    input_dict["self_employed"] = le_emp.transform([input_dict["self_employed"]])[0]
-
-    # 🔥 DATAFRAME
     df = pd.DataFrame([input_dict])
 
-    # 🔥 COLUMN ALIGNMENT (VERY IMPORTANT)
+    # 🟢 COLUMN ALIGNMENT (CRITICAL)
     df = df.reindex(columns=columns, fill_value=0)
 
-    # 🔥 PREDICTION
     prediction = model.predict(df)[0]
 
     st.success(f"Prediction: {prediction}")
