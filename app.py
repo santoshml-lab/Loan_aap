@@ -76,8 +76,40 @@ else:
     st.warning("This model does not support feature importance")
 
 
-# plot
-fig, ax = plt.subplots()
-ax.barh(feat_df["Feature"], feat_df["Importance"])
+st.subheader("📌 Reason")
 
-st.pyplot(fig)
+# Top 3 important features
+top_features = feat_df.sort_values(by="Importance", ascending=False).head(3)
+
+reasons = []
+
+for feature in top_features["Feature"]:
+    
+    if feature == "cibil_score":
+        if input_dict["cibil_score"] > 700:
+            reasons.append("Good CIBIL score")
+        else:
+            reasons.append("Low CIBIL score")
+
+    elif feature == "income_annum":
+        if input_dict["income_annum"] > 500000:
+            reasons.append("High income")
+        else:
+            reasons.append("Low income")
+
+    elif feature == "loan_amount":
+        if input_dict["loan_amount"] > 2000000:
+            reasons.append("High loan amount")
+        else:
+            reasons.append("Moderate loan amount")
+
+    elif feature == "bank_asset_value":
+        if input_dict["bank_asset_value"] > 500000:
+            reasons.append("Strong bank assets")
+        else:
+            reasons.append("Low bank assets")
+
+# show reasons
+for r in reasons:
+    st.write("👉", r)
+
