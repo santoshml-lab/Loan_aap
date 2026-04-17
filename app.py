@@ -50,23 +50,31 @@ if submit:
     pred = model.predict(df)[0]
 
     st.success(f"Prediction: {pred}")
-    import matplotlib.pyplot as plt
+    st.subheader("Feature Importance")
+
+import matplotlib.pyplot as plt
 import pandas as pd
-import streamlit as st
 
-st.subheader("📊 Feature Importance Chart")
+# check feature importance exists
+if hasattr(model, "feature_importances_"):
 
-# importance extract
-importances = model.feature_importances_
+    importances = model.feature_importances_
 
-# dataframe
-feat_df = pd.DataFrame({
-    "Feature": columns,
-    "Importance": importances
-})
+    feat_df = pd.DataFrame({
+        "Feature": columns,
+        "Importance": importances
+    })
 
-# sort
-feat_df = feat_df.sort_values(by="Importance", ascending=True)
+    feat_df = feat_df.sort_values(by="Importance", ascending=True)
+
+    fig, ax = plt.subplots()
+    ax.barh(feat_df["Feature"], feat_df["Importance"])
+
+    st.pyplot(fig)
+
+else:
+    st.warning("This model does not support feature importance")
+
 
 # plot
 fig, ax = plt.subplots()
